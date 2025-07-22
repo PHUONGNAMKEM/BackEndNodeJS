@@ -1,18 +1,25 @@
 // const express = require('express');
 import express from "express";
 import 'dotenv/config'
+import webRoutes from "./routes/web";
 
 const app = express();
 const PORT = process.env.PORT || 8080;
 
-app.get("/", (req, res) => {
-    res.send("Hello World nodemon");
-});
+// config view engine
+app.set('views', __dirname + '/views')
+app.set('view engine', 'ejs');
 
-app.get("/ifanit", (req, res) => {
-    res.send("Hello iFanIT");
-});
+// config req.body
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// config static files: images/css/js
+app.use(express.static('public'));
+
+// config routes
+webRoutes(app);
 
 app.listen(PORT, () => {
     console.log(`My app is running on port: ${PORT}`)
-});  
+});
