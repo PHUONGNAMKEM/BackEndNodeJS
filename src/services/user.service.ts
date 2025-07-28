@@ -1,74 +1,64 @@
+import { prisma } from "config/client";
 import getConnection from "config/database";
+import bcrypt from 'bcrypt';
+const saltRounds = 10;
 
-const handleCreateUser = async (name: string, email: string, address: string) => {
+const handleCreateUser = async (name: string, email: string, password: string) => {
 
-    const connection = await getConnection();
-    try {
-        const sql = 'INSERT INTO `users`(`name`, `email`, `address`) VALUES (?, ?, ?)';
-        const values = [name, email, address];
+    const defaultPassword = await bcrypt.hash(password, saltRounds);
 
-        const [result, fields] = await connection.execute(sql, values);
-        return result;
-    } catch (err) {
-        console.log(err);
-        return [];
-    }
+    const newUser = await prisma.user.create({
+        data: {
+            username: name,
+            email: email,
+            password: defaultPassword,
+            point: 0,
+            rank: 'bronze'
+        }
+    });
+    return newUser;
 }
 
 const getAllUser = async () => {
-    const connection = await getConnection();
-    try {
-        const [results, fields] = await connection.query(
-            'SELECT * FROM `users`'
-        );
-        return results;
-    } catch (err) {
-        console.log(err);
-        return [];
-    }
+    const users = await prisma.user.findMany();
+    return users;
 }
 
 const handleDeleteUser = async (id: string) => {
-    const connection = await getConnection();
-    try {
-        const sql = 'DELETE FROM `users` WHERE `id` = ?';
-        const values = [id];
+    const userDeleted = await prisma.user.delete({
+        where: {
+            idUser: +id
+        }
+    });
 
-        const [result, fields] = await connection.execute(sql, values);
-
-        return result;
-    } catch (err) {
-        console.log(err);
-        return [];
-    }
+    return userDeleted;
 }
 
 const getUserById = async (id: string) => {
-    const connection = await getConnection();
-    try {
-        const sql = 'SELECT * FROM `users` WHERE `id` = ?';
-        const values = [id];
-        const [result, fields] = await connection.execute(sql, values);
-        return result[0];
-    } catch (err) {
-        console.log(err);
-        return [];
-    }
+    const user = await prisma.user.findUnique(
+        {
+            where: {
+                idUser: +id
+            }
+        }
+    );
+    return user;
 }
 
 const updateUserById = async (id: string,
     name: string, email: string, address: string
 ) => {
-    const connection = await getConnection();
-    try {
-        const sql = 'UPDATE `users` SET `name` = ?, `email` = ?, `address` = ? WHERE `id` = ?';
-        const values = [name, email, address, id];
-        const [result, fields] = await connection.execute(sql, values);
-        return result;
-    } catch (err) {
-        console.log(err);
-        return [];
-    }
+    const updatedUser = await prisma.user.update({
+        where: {
+            idUser: +id,
+        },
+        data: {
+            username: name,
+            email: email,
+        }
+    });
+
+    return updatedUser;
 }
 
 export { handleCreateUser, getAllUser, handleDeleteUser, getUserById, updateUserById }

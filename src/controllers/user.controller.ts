@@ -17,13 +17,13 @@ const getCreateUserPage = (req: Request, res: Response) => {
 const postCreateUser = async (req: Request, res: Response) => {
     const { name, email, address } = req.body;
 
-    await handleCreateUser(name, email, address);
-    res.redirect('/');
+    const a = await handleCreateUser(name, email, address);
+    return res.redirect('/');
 }
 
 const postDeleteUser = async (req: Request, res: Response) => {
     const { id } = req.params;
-    await handleDeleteUser(id);
+    const a = await handleDeleteUser(id);
     return res.redirect('/');
 }
 
@@ -40,9 +40,8 @@ const getViewUser = async (req: Request, res: Response) => {
 const postUpdateUser = async (req: Request, res: Response) => {
     const { id, name, email, address } = req.body;
 
-    await updateUserById(id, name, email, address);
+    const a = await updateUserById(id, name, email, address);
     return res.redirect('/');
-
 }
 
 export { getHomePage, getCreateUserPage, postCreateUser, postDeleteUser, getViewUser, postUpdateUser };

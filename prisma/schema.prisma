@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum Rank {
+  bronze
+  silver
+  gold
+  diamond
+  elite
+  master
+  warlord
+}
+
+enum GoalStatus {
+  pending
+  active
+  completed
+  overdue
+  archived
+}
+
+model User {
+  idUser    Int      @id @default(autoincrement())
+  username  String   @db.VarChar(200)
+  password  String   @db.VarChar(200)
+  email     String   @unique @db.VarChar(200)
+  point     Int
+  rank      Rank
+  role      Role     @default(USER)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations (1 User have many Goal)
+  goals Goal[]
+
+  @@map("User")
+}
+
+model Goal {
+  idGoal      Int        @id @default(autoincrement())
+  title       String     @db.VarChar(200)
+  // description String     @db.VarChar(1000)
+  description String     @db.Text
+  startDate   DateTime
+  endDate     DateTime
+  status      GoalStatus
+  progress    Int
+  isPublic    Boolean
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  // FK
+  idUser Int
+  user   User @relation(fields: [idUser], references: [idUser])
+
+  // Relations (1 Goal have many Task)
+  tasks Task[]
+
+  @@map("Goal")
+}
+
+model Task {
+  idTask    Int      @id @default(autoincrement())
+  title     String   @db.VarChar(200)
+  isDone    Boolean
+  dueDate   DateTime
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // FK
+  idGoal Int
+  goal   Goal @relation(fields: [idGoal], references: [idGoal])
+
+  @@map("Task")
+}

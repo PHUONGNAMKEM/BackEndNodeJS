@@ -24,6 +24,19 @@
       "services/*": [
         "./src/services/*"
       ],
-    }
-  }
+    },
+    "typeRoots": [
+      "./node_modules/@types",
+      "./types"
+    ],
+    "types": [
+      "node",
+      "express"
+    ]
+  },
+  "include": [
+    "src",
+    "types",
+    "src/prisma/seed.ts",
+  ]
 }
