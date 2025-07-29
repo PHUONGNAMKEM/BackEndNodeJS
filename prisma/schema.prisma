@@ -50,7 +50,7 @@ model User {
   // Relations (1 User have many Goal)
   goals Goal[]
 
-  @@map("User")
+  @@map("User") // <- name of table was born in mysql
 }
 
 model Goal {
@@ -70,8 +70,9 @@ model Goal {
   idUser Int
   user   User @relation(fields: [idUser], references: [idUser])
 
-  // Relations (1 Goal have many Task)
-  tasks Task[]
+  // Relations (1 Goal has many Task) and (1 Goal has many Type)
+  tasks       Task[]
+  typeofGoals TypeofGoal[]
 
   @@map("Goal")
 }
@@ -89,4 +90,15 @@ model Task {
   goal   Goal @relation(fields: [idGoal], references: [idGoal])
 
   @@map("Task")
+}
+
+model TypeofGoal {
+  idTypeGoal Int    @id @default(autoincrement())
+  nameType   String @db.VarChar(100)
+
+  // FK
+  idGoal Int
+  goal   Goal @relation(fields: [idGoal], references: [idGoal])
+
+  @@map("TypeofGoal")
 }

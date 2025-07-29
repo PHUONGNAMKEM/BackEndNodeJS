@@ -54,7 +54,17 @@ const handleCreateGoal = async (idUser: number, title: string, description: stri
     return newGoal;
 }
 
+// Type of Goal
+const handleGetTypeofGoal = async (idGoal: number) => {
+    const types = await prisma.typeofGoal.findMany({
+        where: {
+            idGoal: +idGoal
+        }
+    });
+    return types;
+}
 
 export {
-    handleGetAllGoalAPI, handleGetGoalById, handleUpdateGoal, handleDeleteGoal, handleCreateGoal
+    handleGetAllGoalAPI, handleGetGoalById, handleUpdateGoal, handleDeleteGoal, handleCreateGoal,
+    handleGetTypeofGoal
 }

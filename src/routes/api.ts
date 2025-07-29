@@ -1,9 +1,10 @@
-import { createGoalAPI, deleteGoalAPI, getAllGoalAPI, getGoalByIdAPI, updateGoalAPI } from 'controllers/client/apiController/apiGoalController';
+import { createGoalAPI, deleteGoalAPI, getAllGoalAPI, getGoalByIdAPI, getTypeofGoal, updateGoalAPI } from 'controllers/client/apiController/apiGoalController';
 import { loginAPI, logoutAPI, getAccountAPI } from 'controllers/client/apiController/apiLoginController';
 import { deleteUserAPI, getAllUserAPI, getUserByIdAPI, registerAPI, updateUserAPI } from 'controllers/client/apiController/apiUserController';
 import express, { Express, Router } from 'express';
 import { checkValidJWT } from 'src/middleware/jwt.middleware';
 import { authorizeRole } from "src/middleware/authRole.middleware";
+import { getTaskByIdOfGoal, updateStatusTask } from 'controllers/client/apiController/apiTaskController';
 
 const router = express.Router();
 
@@ -15,7 +16,7 @@ const apiRoutes = (app: Express) => {
     router.post('/logout', logoutAPI);
     // Register (Create A New User)
     router.post('/user/register', registerAPI);
-    // Get Accoutn
+    // Get Account
     router.get('/account', getAccountAPI);
 
     // User
@@ -30,6 +31,13 @@ const apiRoutes = (app: Express) => {
     router.get('/goal/:id', getGoalByIdAPI);
     router.put('/goal/:id', updateGoalAPI);
     router.delete('/goal/:id', deleteGoalAPI);
+
+    // Type of Goal
+    router.get('/type-of-goal/:idGoal', getTypeofGoal);
+
+    // Task
+    router.get('/task/:idGoal', getTaskByIdOfGoal);
+    router.put('/task/:idTask', updateStatusTask);
 
     app.use('/api', checkValidJWT, router);
 }

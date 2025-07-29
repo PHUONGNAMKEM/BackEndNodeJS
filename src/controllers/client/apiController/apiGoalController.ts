@@ -1,6 +1,6 @@
 import dayjs from "dayjs";
 import { Request, Response } from "express";
-import { handleCreateGoal, handleDeleteGoal, handleGetAllGoalAPI, handleGetGoalById, handleUpdateGoal } from "services/client/api/goalServiceApi";
+import { handleCreateGoal, handleDeleteGoal, handleGetAllGoalAPI, handleGetGoalById, handleGetTypeofGoal, handleUpdateGoal } from "services/client/api/goalServiceApi";
 
 const updateGoalAPI = async (req: Request, res: Response) => {
     try {
@@ -145,6 +145,24 @@ const createGoalAPI = async (req: Request, res: Response) => {
     }
 }
 
+const getTypeofGoal = async (req: Request, res: Response) => {
+    try {
+        const { idGoal } = req.params;
+        const types = await handleGetTypeofGoal(+idGoal);
+        res.status(200).json({
+            data: types,
+            success: true,
+            statusCode: 200
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Cannot get Type of this Goal", error
+        });
+    }
+}
+
 export {
-    updateGoalAPI, getAllGoalAPI, getGoalByIdAPI, deleteGoalAPI, createGoalAPI
+    updateGoalAPI, getAllGoalAPI, getGoalByIdAPI, deleteGoalAPI, createGoalAPI,
+    getTypeofGoal
 }
