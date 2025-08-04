@@ -1,6 +1,11 @@
 import { prisma } from "config/client"
+import { updateStatusProgressGoal } from "./goalServiceApi";
 
-const handleGetTaskById = async (idGoal: number) => {
+// const handleGetAllTask = async () => {
+//     return await prisma.task.findMany();
+// }
+
+const handleGetTasksByGoalId = async (idGoal: number) => {
 
     const task = await prisma.task.findMany({
         where: {
@@ -10,7 +15,7 @@ const handleGetTaskById = async (idGoal: number) => {
     return task;
 }
 
-const handleUpdateStatusTask = async (idTask: number, statusPicked: boolean) => {
+const handleUpdateStatusTask = async (idGoal: number, idTask: number, statusPicked: boolean) => {
 
     const task = await prisma.task.update({
         where: {
@@ -20,9 +25,25 @@ const handleUpdateStatusTask = async (idTask: number, statusPicked: boolean) => 
             isDone: statusPicked
         },
     });
+    await updateStatusProgressGoal(idGoal);
+
+    return task;
+}
+
+const handleCreateTask = async (title: string, isDone: boolean, dueDate: Date, idGoal: number) => {
+
+    const task = await prisma.task.create({
+        data: {
+            title,
+            isDone,
+            dueDate,
+            idGoal
+        },
+    });
+    await updateStatusProgressGoal(idGoal);
     return task;
 }
 
 export {
-    handleGetTaskById, handleUpdateStatusTask
+    handleGetTasksByGoalId, handleUpdateStatusTask, handleCreateTask
 }

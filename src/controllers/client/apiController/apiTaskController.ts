@@ -1,11 +1,27 @@
 import { Request, Response } from "express";
 import { handleGetTypeofGoal } from "services/client/api/goalServiceApi";
-import { handleGetTaskById, handleUpdateStatusTask } from "services/client/api/taskServiceApi";
+import { handleCreateTask, handleGetTasksByGoalId, handleUpdateStatusTask } from "services/client/api/taskServiceApi";
+
+// const getAllTask = async (req: Request, res: Response) => {
+//     try {
+//         const tasks = await handleGetAllTask();
+//         res.status(200).json({
+//             data: tasks,
+//             success: true,
+//             statusCode: 200
+//         })
+
+//     } catch (error) {
+//         res.status(500).json({
+//             message: "Cannot get all Task", error
+//         });
+//     }
+// }
 
 const getTaskByIdOfGoal = async (req: Request, res: Response) => {
     try {
         const { idGoal } = req.params;
-        const types = await handleGetTaskById(+idGoal);
+        const types = await handleGetTasksByGoalId(+idGoal);
         res.status(200).json({
             data: types,
             success: true,
@@ -21,9 +37,9 @@ const getTaskByIdOfGoal = async (req: Request, res: Response) => {
 
 const updateStatusTask = async (req: Request, res: Response) => {
     try {
-        const { idTask } = req.params;
+        const { idGoal, idTask } = req.params;
         const { isDone } = req.body;
-        const taskUpdated = await handleUpdateStatusTask(+idTask, isDone);
+        const taskUpdated = await handleUpdateStatusTask(+idGoal, +idTask, isDone);
         res.status(200).json({
             data: taskUpdated,
             success: true,
@@ -36,6 +52,23 @@ const updateStatusTask = async (req: Request, res: Response) => {
     }
 }
 
+const createTaskAPI = async (req: Request, res: Response) => {
+    try {
+        const { idGoal } = req.params;
+        const { title, isDone, dueDate, } = req.body;
+        const newTask = await handleCreateTask(title, isDone, new Date(dueDate), +idGoal);
+        res.status(200).json({
+            data: newTask,
+            success: true,
+            statusCode: 200
+        })
+    } catch (error) {
+        res.status(500).json({
+            message: "Cannot create a Task", error
+        });
+    }
+}
+
 export {
-    getTaskByIdOfGoal, updateStatusTask
+    getTaskByIdOfGoal, updateStatusTask, createTaskAPI
 }

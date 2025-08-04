@@ -74,6 +74,9 @@ model Goal {
   tasks       Task[]
   typeofGoals TypeofGoal[]
 
+  // Relation with Column
+  columns Column[]
+
   @@map("Goal")
 }
 
@@ -89,6 +92,10 @@ model Task {
   idGoal Int
   goal   Goal @relation(fields: [idGoal], references: [idGoal])
 
+  // FK to Column
+  idColumn Int?
+  column   Column? @relation(fields: [idColumn], references: [idColumn])
+
   @@map("Task")
 }
 
@@ -101,4 +108,21 @@ model TypeofGoal {
   goal   Goal @relation(fields: [idGoal], references: [idGoal])
 
   @@map("TypeofGoal")
+}
+
+model Column {
+  idColumn  Int      @id @default(autoincrement())
+  title     String   @db.VarChar(200)
+  order     Int?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // FK to Goal
+  idGoal Int
+  goal   Goal @relation(fields: [idGoal], references: [idGoal])
+
+  // Relation: 1 Column has many Task
+  tasks Task[]
+
+  @@map("Column")
 }

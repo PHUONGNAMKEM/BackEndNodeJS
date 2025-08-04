@@ -4,7 +4,8 @@ import { deleteUserAPI, getAllUserAPI, getUserByIdAPI, registerAPI, updateUserAP
 import express, { Express, Router } from 'express';
 import { checkValidJWT } from 'src/middleware/jwt.middleware';
 import { authorizeRole } from "src/middleware/authRole.middleware";
-import { getTaskByIdOfGoal, updateStatusTask } from 'controllers/client/apiController/apiTaskController';
+import { createTaskAPI, getTaskByIdOfGoal, updateStatusTask } from 'controllers/client/apiController/apiTaskController';
+import { createColumnForGoalId, getAllColumn } from 'controllers/client/apiController/apiColumnController';
 
 const router = express.Router();
 
@@ -36,8 +37,14 @@ const apiRoutes = (app: Express) => {
     router.get('/type-of-goal/:idGoal', getTypeofGoal);
 
     // Task
-    router.get('/task/:idGoal', getTaskByIdOfGoal);
-    router.put('/task/:idTask', updateStatusTask);
+    // router.get('/task/:idGoal', getTaskByIdOfGoal);
+    router.get('/goal/:idGoal/task', getTaskByIdOfGoal);
+    router.put('/goal/:idGoal/task/:idTask', updateStatusTask);
+    router.post('/goal/:idGoal/task', createTaskAPI);
+
+    // Column
+    router.get('/goal/:idGoal/column', getAllColumn);
+    router.post('/goal/:idGoal/column', createColumnForGoalId);
 
     app.use('/api', checkValidJWT, router);
 }

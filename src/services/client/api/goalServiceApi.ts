@@ -64,7 +64,36 @@ const handleGetTypeofGoal = async (idGoal: number) => {
     return types;
 }
 
+// Update Status and Progress corresponding
+/**
+ * Progress get 100 when all of this task isDone = true
+ * All most situation Status is 'active', reset by 'completed' when Progress get 100
+ */
+
+const updateStatusProgressGoal = async (idGoal: number) => {
+    const tasks = await prisma.task.findMany({
+        where: {
+            idGoal
+        }
+    });
+
+    // get completed task / total task => progress
+    const totalTasks = tasks.length;
+    const completedTask = tasks.filter(t => t.isDone).length;
+
+    const progress = totalTasks === 0 ? 0 : Math.round((completedTask / totalTasks) * 100);
+    const status = progress === 100 ? 'completed' : 'active';
+
+    await prisma.goal.update({
+        where: { idGoal },
+        data: {
+            progress, status
+        }
+    })
+}
+
+
 export {
     handleGetAllGoalAPI, handleGetGoalById, handleUpdateGoal, handleDeleteGoal, handleCreateGoal,
-    handleGetTypeofGoal
+    handleGetTypeofGoal, updateStatusProgressGoal
 }
