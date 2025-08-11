@@ -64,6 +64,18 @@ const handleGetTypeofGoal = async (idGoal: number) => {
     return types;
 }
 
+const handleUpdateTypeofGoal = async (idGoal: number, namety) => {
+    const types = await prisma.typeofGoal.updateMany({
+        where: {
+            idGoal: +idGoal
+        },
+        data: {
+
+        }
+    });
+    return types;
+}
+
 // Update Status and Progress corresponding
 /**
  * Progress get 100 when all of this task isDone = true

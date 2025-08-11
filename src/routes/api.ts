@@ -4,8 +4,8 @@ import { deleteUserAPI, getAllUserAPI, getUserByIdAPI, registerAPI, updateUserAP
 import express, { Express, Router } from 'express';
 import { checkValidJWT } from 'src/middleware/jwt.middleware';
 import { authorizeRole } from "src/middleware/authRole.middleware";
-import { createTaskAPI, getTaskByIdOfGoal, updateStatusTask } from 'controllers/client/apiController/apiTaskController';
-import { createColumnForGoalId, getAllColumn } from 'controllers/client/apiController/apiColumnController';
+import { createTaskAPI, deleteTaskAPI, getTaskByIdOfGoal, updateStatusTask, updateTaskAPI, updateTaskColumn, updateTaskOrders } from 'controllers/client/apiController/apiTaskController';
+import { createColumnForGoalId, deleteColumnAPI, getAllColumnAPI, updateColumnAPI } from 'controllers/client/apiController/apiColumnController';
 
 const router = express.Router();
 
@@ -39,12 +39,18 @@ const apiRoutes = (app: Express) => {
     // Task
     // router.get('/task/:idGoal', getTaskByIdOfGoal);
     router.get('/goal/:idGoal/task', getTaskByIdOfGoal);
-    router.put('/goal/:idGoal/task/:idTask', updateStatusTask);
+    router.put('/goal/:idGoal/task/:idTask/status', updateStatusTask);
+    router.put('/goal/:idGoal/task/:idTask/move', updateTaskColumn);
+    router.put('/goal/:idGoal/task/reorder', updateTaskOrders);
     router.post('/goal/:idGoal/task', createTaskAPI);
+    router.put('/goal/:idGoal/task/:idTask', updateTaskAPI);
+    router.delete('/goal/:idGoal/task/:idTask', deleteTaskAPI);
 
     // Column
-    router.get('/goal/:idGoal/column', getAllColumn);
+    router.get('/goal/:idGoal/column', getAllColumnAPI);
     router.post('/goal/:idGoal/column', createColumnForGoalId);
+    router.delete('/goal/:idGoal/column/:idColumn', deleteColumnAPI);
+    router.put('/goal/:idGoal/column/:idColumn', updateColumnAPI);
 
     app.use('/api', checkValidJWT, router);
 }

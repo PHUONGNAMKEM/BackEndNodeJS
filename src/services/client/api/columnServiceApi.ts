@@ -1,4 +1,5 @@
 import { prisma } from "config/client"
+import { handleGetTasksByGoalId } from "./taskServiceApi";
 
 const handleGetAllColumn = async (idGoal: number) => {
     return await prisma.column.findMany({
@@ -26,45 +27,31 @@ const handleCreateColumn = async (title: string, idGoal: number) => {
     return column;
 }
 
-// const handleGetTasksByGoalId = async (idGoal: number) => {
+const handleDeleteColumn = async (idColumn: number) => {
+    await prisma.task.deleteMany({
+        where: { idColumn },
+    });
 
-//     const task = await prisma.task.findMany({
-//         where: {
-//             idGoal
-//         }
-//     });
-//     return task;
-// }
+    const columnDeleted = await prisma.column.delete({
+        where: { idColumn },
+    });
 
-// const handleUpdateStatusTask = async (idGoal: number, idTask: number, statusPicked: boolean) => {
+    return columnDeleted;
+}
 
-//     const task = await prisma.task.update({
-//         where: {
-//             idTask
-//         },
-//         data: {
-//             isDone: statusPicked
-//         },
-//     });
-//     await updateStatusProgressGoal(idGoal);
+const handleUpdateColumn = async (idColumn: number, title: string) => {
+    const columnUpdated = await prisma.column.update({
+        where: {
+            idColumn
+        },
+        data: {
+            title
+        }
+    })
 
-//     return task;
-// }
-
-// const handleCreateTask = async (title: string, isDone: boolean, dueDate: Date, idGoal: number) => {
-
-//     const task = await prisma.task.create({
-//         data: {
-//             title,
-//             isDone,
-//             dueDate,
-//             idGoal
-//         },
-//     });
-//     await updateStatusProgressGoal(idGoal);
-//     return task;
-// }
+    return columnUpdated;
+}
 
 export {
-    handleGetAllColumn, handleCreateColumn
+    handleGetAllColumn, handleCreateColumn, handleDeleteColumn, handleUpdateColumn
 }

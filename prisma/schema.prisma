@@ -36,6 +36,12 @@ enum GoalStatus {
   archived
 }
 
+// enum Priority {
+//   low
+//   medium
+//   high
+// }
+
 model User {
   idUser    Int      @id @default(autoincrement())
   username  String   @db.VarChar(200)
@@ -84,7 +90,9 @@ model Task {
   idTask    Int      @id @default(autoincrement())
   title     String   @db.VarChar(200)
   isDone    Boolean
+  startDate DateTime @default(now())
   dueDate   DateTime
+  priority  Int      @default(0)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
