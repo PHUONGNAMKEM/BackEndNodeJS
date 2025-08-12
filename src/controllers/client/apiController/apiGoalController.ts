@@ -1,6 +1,8 @@
 import dayjs from "dayjs";
 import { Request, Response } from "express";
-import { handleCreateGoal, handleDeleteGoal, handleGetAllGoalAPI, handleGetGoalById, handleGetTypeofGoal, handleUpdateGoal } from "services/client/api/goalServiceApi";
+import { handleCreateGoal, handleDeleteGoal, handleGetAllGoalAPI, handleGetAllGoalByUserIdAPI, handleGetGoalById, handleGetTypeofGoal, handleUpdateGoal } from "services/client/api/goalServiceApi";
+import jwt from "jsonwebtoken";
+
 
 const updateGoalAPI = async (req: Request, res: Response) => {
     try {
@@ -39,6 +41,33 @@ const getAllGoalAPI = async (req: Request, res: Response) => {
         success: true,
         statusCode: 200
     })
+}
+
+const getAllGoalByUserIdAPI = async (req: Request, res: Response) => {
+    try {
+        const authHeader = req.headers.authorization;
+        if (!authHeader || !authHeader.startsWith("Bearer ")) {
+            return res.status(401).json({ message: "No token provided" });
+        }
+
+        const token = authHeader.split(" ")[1];
+        // Giải mã token
+        const decoded: any = jwt.verify(token, process.env.JWT_SECRET as string);
+
+        // Lấy idUser từ payload JWT
+        const idUser = decoded.id;
+
+        const goals = await handleGetAllGoalByUserIdAPI(+idUser);
+
+        res.status(200).json({
+            data: goals,
+            message: "Goal fetched info successfully",
+            success: true,
+            statusCode: 200
+        })
+    } catch (error) {
+        return res.status(401).json({ message: "Invalid or expired token", error: error.message });
+    }
 }
 
 const getGoalByIdAPI = async (req: Request, res: Response) => {
@@ -164,5 +193,5 @@ const getTypeofGoal = async (req: Request, res: Response) => {
 
 export {
     updateGoalAPI, getAllGoalAPI, getGoalByIdAPI, deleteGoalAPI, createGoalAPI,
-    getTypeofGoal
+    getTypeofGoal, getAllGoalByUserIdAPI
 }

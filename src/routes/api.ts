@@ -1,4 +1,4 @@
-import { createGoalAPI, deleteGoalAPI, getAllGoalAPI, getGoalByIdAPI, getTypeofGoal, updateGoalAPI } from 'controllers/client/apiController/apiGoalController';
+import { createGoalAPI, deleteGoalAPI, getAllGoalAPI, getAllGoalByUserIdAPI, getGoalByIdAPI, getTypeofGoal, updateGoalAPI } from 'controllers/client/apiController/apiGoalController';
 import { loginAPI, logoutAPI, getAccountAPI } from 'controllers/client/apiController/apiLoginController';
 import { deleteUserAPI, getAllUserAPI, getUserByIdAPI, registerAPI, updateUserAPI } from 'controllers/client/apiController/apiUserController';
 import express, { Express, Router } from 'express';
@@ -28,7 +28,8 @@ const apiRoutes = (app: Express) => {
 
     // Goal
     router.post('/goal', createGoalAPI)
-    router.get('/goal', getAllGoalAPI);
+    // router.get('/goal', getAllGoalAPI);
+    router.get('/goal', getAllGoalByUserIdAPI);
     router.get('/goal/:id', getGoalByIdAPI);
     router.put('/goal/:id', updateGoalAPI);
     router.delete('/goal/:id', deleteGoalAPI);

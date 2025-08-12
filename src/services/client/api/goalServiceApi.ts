@@ -20,6 +20,15 @@ const handleGetAllGoalAPI = async () => {
     return await prisma.goal.findMany();
 }
 
+const handleGetAllGoalByUserIdAPI = async (idUser: number) => {
+    return await prisma.goal.findMany({
+        where: {
+            idUser
+        }
+    });
+}
+
+
 const handleGetGoalById = async (id: number) => {
     return await prisma.goal.findUnique({
         where: { idGoal: id }
@@ -107,5 +116,5 @@ const updateStatusProgressGoal = async (idGoal: number) => {
 
 export {
     handleGetAllGoalAPI, handleGetGoalById, handleUpdateGoal, handleDeleteGoal, handleCreateGoal,
-    handleGetTypeofGoal, updateStatusProgressGoal
+    handleGetTypeofGoal, updateStatusProgressGoal, handleGetAllGoalByUserIdAPI
 }
