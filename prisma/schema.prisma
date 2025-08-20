@@ -69,6 +69,7 @@ model Goal {
   status      GoalStatus
   progress    Int
   isPublic    Boolean
+  background  String?    @db.VarChar(512) // URL so long -> 512
   createdAt   DateTime   @default(now())
   updatedAt   DateTime   @updatedAt
 
@@ -110,6 +111,7 @@ model Task {
 model TypeofGoal {
   idTypeGoal Int    @id @default(autoincrement())
   nameType   String @db.VarChar(100)
+  theme      String @default("#0958d9") @db.VarChar(100)
 
   // FK
   idGoal Int

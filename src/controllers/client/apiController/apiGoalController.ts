@@ -1,19 +1,24 @@
-import dayjs from "dayjs";
+import dayjs, { Dayjs } from "dayjs";
 import { Request, Response } from "express";
-import { handleCreateGoal, handleDeleteGoal, handleGetAllGoalAPI, handleGetAllGoalByUserIdAPI, handleGetGoalById, handleGetTypeofGoal, handleUpdateGoal } from "services/client/api/goalServiceApi";
+import { handleCreateGoal, handleCreateTypeofGoal, handleDeleteGoal, handleGetAllGoalAPI, handleGetAllGoalByUserIdAPI, handleGetAllTypeofGoal, handleGetGoalById, handleGetTypeofGoal, handleUpdateGoal } from "services/client/api/goalServiceApi";
 import jwt from "jsonwebtoken";
+import deadlineValidation from "config/deadlineValidation";
 
 
 const updateGoalAPI = async (req: Request, res: Response) => {
     try {
         const { id } = req.params;
-        const { title, description, endDate, isPublic } = req.body;
+        let { title, description, endDate, isPublic } = req.body;
+        const file = req.file;
+        const backgroundFileUpload = file?.filename ?? "background_default.jpg";
 
         if (!title || !description || !endDate) {
             return res.status(400).json({ message: "Missing required fields" });
         }
 
-        const goalUpdated = await handleUpdateGoal(+id, title, description, new Date(endDate), isPublic);
+        isPublic = isPublic === true || isPublic === 'true';
+
+        const goalUpdated = await handleUpdateGoal(+id, title, description, new Date(endDate), isPublic, backgroundFileUpload);
         // const io = req.app.get('io');
         // io.emit("goalUpdated");
 
@@ -127,6 +132,28 @@ const deleteGoalAPI = async (req: Request, res: Response) => {
     }
 }
 
+const uploadFileBackgroundAPI = async (req: Request, res: Response) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({
+                message: "No file uploaded",
+                success: false
+            });
+        }
+
+        res.status(200).json({
+            fileUploaded: req.file.filename,
+            message: "File uploaded successfully",
+            success: true
+        });
+    } catch (error) {
+        res.status(500).json({
+            message: "Upload file failed",
+            error: (error as Error).message
+        });
+    }
+}
+
 const createGoalAPI = async (req: Request, res: Response) => {
     try {
         let { title, description, startDate, endDate, isPublic } = req.body;
@@ -138,35 +165,44 @@ const createGoalAPI = async (req: Request, res: Response) => {
             });
         }
 
-        const now = dayjs().startOf('day');
-        startDate = dayjs(startDate).startOf('day');
-        endDate = dayjs(endDate).startOf('day');
-
         isPublic = isPublic === true || isPublic === 'true';
 
-        if (startDate.isBefore(now)) {
-            return res.status(400).json({
-                message: "Start date must start from today"
-            });
+        // Validation date cũ, đã chuyển thành hàm deadlineValidation
+        //  const now = dayjs().startOf('day');
+        //  startDate = dayjs(startDate).startOf('day');
+        //  endDate = dayjs(endDate).startOf('day');
+        // if (startDate.isBefore(now)) {
+        //     return res.status(400).json({
+        //         message: "Start date must start from today"
+        //     });
+        // }
+
+        // if (!startDate.isBefore(endDate)) {
+        //     return res.status(400).json({
+        //         message: "Start date must be before end date"
+        //     });
+        // }
+
+        const checkDeadline = deadlineValidation(startDate, endDate);
+        if (!checkDeadline.valid) {
+            return res.status(400).json({ message: checkDeadline.error });
         }
 
-        if (!startDate.isBefore(endDate)) {
-            return res.status(400).json({
-                message: "Start date must be before end date"
-            });
-        }
+        const file = req.file;
+        const backgroundFileUpload = file?.filename ?? "background_default.jpg";
 
-        const newGoal = await handleCreateGoal(+idUser, title, description, isPublic, startDate, endDate,);
+        const newGoal = await handleCreateGoal(+idUser, title, description, isPublic, checkDeadline.startDate, checkDeadline.endDate, backgroundFileUpload);
         // const io = req.app.get('io');
         // io.emit("goalUpdated");
 
-        res.status(201).json({
+        return res.status(201).json({
             data: newGoal,
             message: "Goal created successfully",
             success: true,
             statusCode: 201
         })
     } catch (error) {
+        console.log(">>> controller: ", error);
         return res.status(500).json({
             message: "Create Goal Failed",
             error: (error as Error).message
@@ -174,7 +210,24 @@ const createGoalAPI = async (req: Request, res: Response) => {
     }
 }
 
-const getTypeofGoal = async (req: Request, res: Response) => {
+// Type of Goal
+const getAllTypeofGoal = async (req: Request, res: Response) => {
+    try {
+        const types = await handleGetAllTypeofGoal();
+        res.status(200).json({
+            data: types,
+            success: true,
+            statusCode: 200
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Cannot get Type of this Goal", error
+        });
+    }
+}
+
+const getTypeofGoalById = async (req: Request, res: Response) => {
     try {
         const { idGoal } = req.params;
         const types = await handleGetTypeofGoal(+idGoal);
@@ -191,7 +244,26 @@ const getTypeofGoal = async (req: Request, res: Response) => {
     }
 }
 
+const createNewTypeofGoal = async (req: Request, res: Response) => {
+    try {
+        const { idGoal } = req.params;
+        const { nameType, theme } = req.body;
+        const types = await handleCreateTypeofGoal(nameType, theme, +idGoal);
+        res.status(200).json({
+            data: types,
+            success: true,
+            statusCode: 200
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Cannot create a new Type of Goal", error
+        });
+    }
+}
+
 export {
     updateGoalAPI, getAllGoalAPI, getGoalByIdAPI, deleteGoalAPI, createGoalAPI,
-    getTypeofGoal, getAllGoalByUserIdAPI
+    getTypeofGoalById, getAllGoalByUserIdAPI, uploadFileBackgroundAPI, getAllTypeofGoal,
+    createNewTypeofGoal
 }

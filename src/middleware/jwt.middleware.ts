@@ -15,7 +15,7 @@ declare module 'express' {
 
 const checkValidJWT = (req: Request, res: Response, next: NextFunction) => {
     const path = req.path;
-    const whiteList = ["/login", "/logout"];
+    const whiteList = ["/login", "/logout", "/user/register"];
     const isWhiteList = whiteList.some(route => route === path);
 
     if (isWhiteList) {

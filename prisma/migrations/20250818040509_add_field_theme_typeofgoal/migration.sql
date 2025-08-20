@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE `typeofgoal` ADD COLUMN `theme` VARCHAR(100) NOT NULL DEFAULT '#0958d9';

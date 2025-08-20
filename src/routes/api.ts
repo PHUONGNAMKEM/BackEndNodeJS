@@ -1,4 +1,4 @@
-import { createGoalAPI, deleteGoalAPI, getAllGoalAPI, getAllGoalByUserIdAPI, getGoalByIdAPI, getTypeofGoal, updateGoalAPI } from 'controllers/client/apiController/apiGoalController';
+import { createGoalAPI, createNewTypeofGoal, deleteGoalAPI, getAllGoalAPI, getAllGoalByUserIdAPI, getAllTypeofGoal, getGoalByIdAPI, getTypeofGoalById, updateGoalAPI, uploadFileBackgroundAPI } from 'controllers/client/apiController/apiGoalController';
 import { loginAPI, logoutAPI, getAccountAPI } from 'controllers/client/apiController/apiLoginController';
 import { deleteUserAPI, getAllUserAPI, getUserByIdAPI, registerAPI, updateUserAPI } from 'controllers/client/apiController/apiUserController';
 import express, { Express, Router } from 'express';
@@ -6,6 +6,7 @@ import { checkValidJWT } from 'src/middleware/jwt.middleware';
 import { authorizeRole } from "src/middleware/authRole.middleware";
 import { createTaskAPI, deleteTaskAPI, getTaskByIdOfGoal, updateStatusTask, updateTaskAPI, updateTaskColumn, updateTaskOrders } from 'controllers/client/apiController/apiTaskController';
 import { createColumnForGoalId, deleteColumnAPI, getAllColumnAPI, updateColumnAPI } from 'controllers/client/apiController/apiColumnController';
+import fileUploadMiddleware from 'src/middleware/multer';
 
 const router = express.Router();
 
@@ -27,15 +28,22 @@ const apiRoutes = (app: Express) => {
     router.delete('/user/:id', authorizeRole(["ADMIN"]), deleteUserAPI);
 
     // Goal
-    router.post('/goal', createGoalAPI)
+    router.post('/goal', createGoalAPI);
+    router.post('/goal/upload',
+        fileUploadMiddleware('background'),
+        createGoalAPI
+    );
+
     // router.get('/goal', getAllGoalAPI);
     router.get('/goal', getAllGoalByUserIdAPI);
     router.get('/goal/:id', getGoalByIdAPI);
-    router.put('/goal/:id', updateGoalAPI);
+    router.put('/goal/:id', fileUploadMiddleware('background'), updateGoalAPI);
     router.delete('/goal/:id', deleteGoalAPI);
 
     // Type of Goal
-    router.get('/type-of-goal/:idGoal', getTypeofGoal);
+    router.get('/type-of-goal', getAllTypeofGoal);
+    router.get('/type-of-goal/:idGoal', getTypeofGoalById);
+    router.post('/type-of-goal/:idGoal', createNewTypeofGoal);
 
     // Task
     // router.get('/task/:idGoal', getTaskByIdOfGoal);

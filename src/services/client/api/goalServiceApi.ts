@@ -1,8 +1,9 @@
 import { GoalStatus } from "@prisma/client";
 import { prisma } from "config/client"
 import dayjs, { Dayjs } from "dayjs";
+import { readableColor } from "polished";
 
-const handleUpdateGoal = async (idGoal: number, title: string, description: string, endDate: Date, isPublic: boolean) => {
+const handleUpdateGoal = async (idGoal: number, title: string, description: string, endDate: Date, isPublic: boolean, background: string) => {
 
     const updatedGoal = await prisma.goal.update({
         where: { idGoal },
@@ -10,7 +11,8 @@ const handleUpdateGoal = async (idGoal: number, title: string, description: stri
             title,
             description,
             endDate,
-            isPublic
+            isPublic,
+            background
         }
     });
     return updatedGoal;
@@ -24,10 +26,12 @@ const handleGetAllGoalByUserIdAPI = async (idUser: number) => {
     return await prisma.goal.findMany({
         where: {
             idUser
+        },
+        include: {
+            typeofGoals: true
         }
     });
 }
-
 
 const handleGetGoalById = async (id: number) => {
     return await prisma.goal.findUnique({
@@ -44,7 +48,8 @@ const handleDeleteGoal = async (id: number) => {
     return userUpdated;
 }
 
-const handleCreateGoal = async (idUser: number, title: string, description: string, isPublic: boolean, startDate: Dayjs, endDate: Dayjs) => {
+
+const handleCreateGoal = async (idUser: number, title: string, description: string, isPublic: boolean, startDate: Dayjs, endDate: Dayjs, background: string) => {
     const now = dayjs();
     const status: GoalStatus = startDate.isAfter(now) ? GoalStatus.pending : GoalStatus.active;
 
@@ -57,17 +62,44 @@ const handleCreateGoal = async (idUser: number, title: string, description: stri
             endDate: endDate.toDate(),
             isPublic: isPublic,
             progress: 0,
-            status: status
+            status: status,
+            background: background
         }
     });
     return newGoal;
 }
 
 // Type of Goal
+const handleGetAllTypeofGoal = async () => {
+    const types = await prisma.typeofGoal.findMany();
+    return types;
+}
+// const handleGetAllTypeofGoal = async () => {
+//     const typesOfGoal = await prisma.typeofGoal.findMany();
+
+//     // Thêm textColor cho mỗi item
+//     const typesWithTextColor = typesOfGoal.map(type => ({
+//         ...type.toJSON(),
+//         textColor: readableColor(type.theme) // Tự động tính màu chữ
+//     }));
+//     return typesOfGoal;
+// }
+
 const handleGetTypeofGoal = async (idGoal: number) => {
     const types = await prisma.typeofGoal.findMany({
         where: {
             idGoal: +idGoal
+        }
+    });
+    return types;
+}
+
+const handleCreateTypeofGoal = async (nameType: string, theme: string, idGoal: number) => {
+    const types = await prisma.typeofGoal.create({
+        data: {
+            nameType,
+            theme,
+            idGoal,
         }
     });
     return types;
@@ -116,5 +148,6 @@ const updateStatusProgressGoal = async (idGoal: number) => {
 
 export {
     handleGetAllGoalAPI, handleGetGoalById, handleUpdateGoal, handleDeleteGoal, handleCreateGoal,
-    handleGetTypeofGoal, updateStatusProgressGoal, handleGetAllGoalByUserIdAPI
+    handleGetTypeofGoal, updateStatusProgressGoal, handleGetAllGoalByUserIdAPI, handleGetAllTypeofGoal,
+    handleCreateTypeofGoal
 }

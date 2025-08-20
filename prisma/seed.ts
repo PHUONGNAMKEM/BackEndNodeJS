@@ -7,7 +7,7 @@ async function main() {
         data: {
             username: 'Phuong Nam',
             email: 'phuongnam@gmail.com',
-            password: '123456',
+            password: '$10$ZQKoIThTrFGfG6R742weW.Q5LtbLHAEfeiv.hsxxQ2OmCBX9s1lO6',
             point: 100,
             rank: 'bronze',
         },
@@ -28,22 +28,28 @@ async function main() {
     });
 
     // Task
-    await prisma.task.createMany({
-        data: [
-            {
-                title: 'Cài Prisma',
-                isDone: true,
-                dueDate: new Date('2025-07-21'),
-                idGoal: goal1.idGoal,
-            },
-            {
-                title: 'Tạo model',
-                isDone: false,
-                dueDate: new Date('2025-07-22'),
-                idGoal: goal1.idGoal,
-            },
-        ],
-    });
+    const countTask = await prisma.task.count();
+    if (countTask === 0) {
+        await prisma.task.createMany({
+            data: [
+                {
+                    title: 'Cài Prisma',
+                    isDone: true,
+                    dueDate: new Date('2025-07-21'),
+                    idGoal: goal1.idGoal,
+                },
+                {
+                    title: 'Tạo model',
+                    isDone: false,
+                    dueDate: new Date('2025-07-22'),
+                    idGoal: goal1.idGoal,
+                },
+            ],
+        });
+    }
+    else {
+        console.log(">>> ALREADY INIT DATA TASK...");
+    }
 }
 
 main()
