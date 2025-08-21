@@ -1,4 +1,4 @@
-import { createGoalAPI, createNewTypeofGoal, deleteGoalAPI, getAllGoalAPI, getAllGoalByUserIdAPI, getAllTypeofGoal, getGoalByIdAPI, getTypeofGoalById, updateGoalAPI, uploadFileBackgroundAPI } from 'controllers/client/apiController/apiGoalController';
+import { createGoalAPI, createNewTypeofGoal, deleteGoalAPI, deleteTypeofGoal, getAllGoalAPI, getAllGoalByUserIdAPI, getAllTypeofGoal, getGoalByIdAPI, getTypeofGoalById, updateGoalAPI, updateTypeofGoal, uploadFileBackgroundAPI } from 'controllers/client/apiController/apiGoalController';
 import { loginAPI, logoutAPI, getAccountAPI } from 'controllers/client/apiController/apiLoginController';
 import { deleteUserAPI, getAllUserAPI, getUserByIdAPI, registerAPI, updateUserAPI } from 'controllers/client/apiController/apiUserController';
 import express, { Express, Router } from 'express';
@@ -44,6 +44,8 @@ const apiRoutes = (app: Express) => {
     router.get('/type-of-goal', getAllTypeofGoal);
     router.get('/type-of-goal/:idGoal', getTypeofGoalById);
     router.post('/type-of-goal/:idGoal', createNewTypeofGoal);
+    router.put('/type-of-goal/:idTypeGoal', updateTypeofGoal);
+    router.delete('/type-of-goal/:idTypeGoal', deleteTypeofGoal);
 
     // Task
     // router.get('/task/:idGoal', getTaskByIdOfGoal);

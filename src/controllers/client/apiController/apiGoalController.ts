@@ -1,6 +1,6 @@
 import dayjs, { Dayjs } from "dayjs";
 import { Request, Response } from "express";
-import { handleCreateGoal, handleCreateTypeofGoal, handleDeleteGoal, handleGetAllGoalAPI, handleGetAllGoalByUserIdAPI, handleGetAllTypeofGoal, handleGetGoalById, handleGetTypeofGoal, handleUpdateGoal } from "services/client/api/goalServiceApi";
+import { handleCreateGoal, handleCreateTypeofGoal, handleDeleteGoal, handleDeleteTypeofGoal, handleGetAllGoalAPI, handleGetAllGoalByUserIdAPI, handleGetAllTypeofGoal, handleGetGoalById, handleGetTypeofGoal, handleUpdateGoal, handleUpdateTypeofGoal } from "services/client/api/goalServiceApi";
 import jwt from "jsonwebtoken";
 import deadlineValidation from "config/deadlineValidation";
 
@@ -249,10 +249,10 @@ const createNewTypeofGoal = async (req: Request, res: Response) => {
         const { idGoal } = req.params;
         const { nameType, theme } = req.body;
         const types = await handleCreateTypeofGoal(nameType, theme, +idGoal);
-        res.status(200).json({
+        res.status(201).json({
             data: types,
             success: true,
-            statusCode: 200
+            statusCode: 201
         })
 
     } catch (error) {
@@ -262,8 +262,43 @@ const createNewTypeofGoal = async (req: Request, res: Response) => {
     }
 }
 
+const updateTypeofGoal = async (req: Request, res: Response) => {
+    try {
+        const { idTypeGoal } = req.params;
+        const { nameType, theme } = req.body;
+        const types = await handleUpdateTypeofGoal(+idTypeGoal, nameType, theme);
+        res.status(200).json({
+            data: types,
+            success: true,
+            statusCode: 200
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Cannot update this Type of Goal", error
+        });
+    }
+}
+
+const deleteTypeofGoal = async (req: Request, res: Response) => {
+    try {
+        const { idTypeGoal } = req.params;
+        const types = await handleDeleteTypeofGoal(+idTypeGoal);
+        res.status(200).json({
+            data: types,
+            success: true,
+            statusCode: 200
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Cannot delete this Type of Goal", error
+        });
+    }
+}
+
 export {
     updateGoalAPI, getAllGoalAPI, getGoalByIdAPI, deleteGoalAPI, createGoalAPI,
     getTypeofGoalById, getAllGoalByUserIdAPI, uploadFileBackgroundAPI, getAllTypeofGoal,
-    createNewTypeofGoal
+    createNewTypeofGoal, updateTypeofGoal, deleteTypeofGoal
 }

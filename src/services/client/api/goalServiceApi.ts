@@ -105,13 +105,23 @@ const handleCreateTypeofGoal = async (nameType: string, theme: string, idGoal: n
     return types;
 }
 
-const handleUpdateTypeofGoal = async (idGoal: number, namety) => {
-    const types = await prisma.typeofGoal.updateMany({
+const handleUpdateTypeofGoal = async (idTypeGoal: number, nameType: string, theme: string) => {
+    const types = await prisma.typeofGoal.update({
         where: {
-            idGoal: +idGoal
+            idTypeGoal: +idTypeGoal
         },
         data: {
+            nameType,
+            theme
+        }
+    });
+    return types;
+}
 
+const handleDeleteTypeofGoal = async (idTypeGoal: number) => {
+    const types = await prisma.typeofGoal.delete({
+        where: {
+            idTypeGoal: +idTypeGoal
         }
     });
     return types;
@@ -149,5 +159,5 @@ const updateStatusProgressGoal = async (idGoal: number) => {
 export {
     handleGetAllGoalAPI, handleGetGoalById, handleUpdateGoal, handleDeleteGoal, handleCreateGoal,
     handleGetTypeofGoal, updateStatusProgressGoal, handleGetAllGoalByUserIdAPI, handleGetAllTypeofGoal,
-    handleCreateTypeofGoal
+    handleCreateTypeofGoal, handleUpdateTypeofGoal, handleDeleteTypeofGoal
 }
