@@ -78,8 +78,10 @@ model Goal {
   user   User @relation(fields: [idUser], references: [idUser])
 
   // Relations (1 Goal has many Task) and (1 Goal has many Type)
-  tasks       Task[]
-  typeofGoals TypeofGoal[]
+  tasks Task[]
+
+  // Field between Goal and TypeofGoal 
+  goalTypes GoalType[]
 
   // Relation with Column
   columns Column[]
@@ -99,7 +101,7 @@ model Task {
 
   // FK
   idGoal Int
-  goal   Goal @relation(fields: [idGoal], references: [idGoal])
+  goal   Goal @relation(fields: [idGoal], references: [idGoal], onDelete: Cascade)
 
   // FK to Column
   idColumn Int?
@@ -110,12 +112,11 @@ model Task {
 
 model TypeofGoal {
   idTypeGoal Int    @id @default(autoincrement())
-  nameType   String @db.VarChar(100)
+  nameType   String @unique @db.VarChar(100)
   theme      String @default("#0958d9") @db.VarChar(100)
 
-  // FK
-  idGoal Int
-  goal   Goal @relation(fields: [idGoal], references: [idGoal])
+  // Field between Goal and TypeofGoal
+  goalTypes GoalType[]
 
   @@map("TypeofGoal")
 }
@@ -129,10 +130,22 @@ model Column {
 
   // FK to Goal
   idGoal Int
-  goal   Goal @relation(fields: [idGoal], references: [idGoal])
+  goal   Goal @relation(fields: [idGoal], references: [idGoal], onDelete: Cascade)
 
   // Relation: 1 Column has many Task
   tasks Task[]
 
   @@map("Column")
+}
+
+model GoalType {
+  idGoal     Int
+  idTypeGoal Int
+
+  goal       Goal       @relation(fields: [idGoal], references: [idGoal], onDelete: Cascade)
+  typeofGoal TypeofGoal @relation(fields: [idTypeGoal], references: [idTypeGoal], onDelete: Cascade)
+
+  // Primary key, idGoal and idTypeGoal is a field of GoalType
+  @@id([idGoal, idTypeGoal])
+  @@map("GoalType")
 }

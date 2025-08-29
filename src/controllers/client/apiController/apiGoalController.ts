@@ -1,8 +1,9 @@
 import dayjs, { Dayjs } from "dayjs";
 import { Request, Response } from "express";
-import { handleCreateGoal, handleCreateTypeofGoal, handleDeleteGoal, handleDeleteTypeofGoal, handleGetAllGoalAPI, handleGetAllGoalByUserIdAPI, handleGetAllTypeofGoal, handleGetGoalById, handleGetTypeofGoal, handleUpdateGoal, handleUpdateTypeofGoal } from "services/client/api/goalServiceApi";
+import { handleAddTypeofGoalToGoalType, handleCreateGoal, handleCreateTypeofGoal, handleDeleteAllTypeofGoal, handleDeleteGoal, handleDeleteTypeofGoalOnGoalType, handleGetAllGoalAPI, handleGetAllGoalByUserIdAPI, handleGetAllTypeofGoal, handleGetGoalById, handleGetTypeofGoal, handleUpdateGoal, handleUpdateTypeofGoal } from "services/client/api/goalServiceApi";
 import jwt from "jsonwebtoken";
-import deadlineValidation from "config/deadlineValidation";
+import { deadlineValidation } from "config/deadlineValidation";
+import { Prisma } from "@prisma/client";
 
 
 const updateGoalAPI = async (req: Request, res: Response) => {
@@ -211,7 +212,7 @@ const createGoalAPI = async (req: Request, res: Response) => {
 }
 
 // Type of Goal
-const getAllTypeofGoal = async (req: Request, res: Response) => {
+const getAllTypeofGoalAPI = async (req: Request, res: Response) => {
     try {
         const types = await handleGetAllTypeofGoal();
         res.status(200).json({
@@ -227,7 +228,7 @@ const getAllTypeofGoal = async (req: Request, res: Response) => {
     }
 }
 
-const getTypeofGoalById = async (req: Request, res: Response) => {
+const getTypeofGoalByIdAPI = async (req: Request, res: Response) => {
     try {
         const { idGoal } = req.params;
         const types = await handleGetTypeofGoal(+idGoal);
@@ -244,11 +245,10 @@ const getTypeofGoalById = async (req: Request, res: Response) => {
     }
 }
 
-const createNewTypeofGoal = async (req: Request, res: Response) => {
+const addTypeofGoalToGoalTypeAPI = async (req: Request, res: Response) => {
     try {
-        const { idGoal } = req.params;
-        const { nameType, theme } = req.body;
-        const types = await handleCreateTypeofGoal(nameType, theme, +idGoal);
+        const { idTypeGoal, idGoal } = req.body;
+        const types = await handleAddTypeofGoalToGoalType(+idTypeGoal, +idGoal);
         res.status(201).json({
             data: types,
             success: true,
@@ -262,7 +262,41 @@ const createNewTypeofGoal = async (req: Request, res: Response) => {
     }
 }
 
-const updateTypeofGoal = async (req: Request, res: Response) => {
+const createNewTypeofGoalAPI = async (req: Request, res: Response) => {
+    try {
+        const { idGoal } = req.params;
+        const { nameType, theme } = req.body;
+        const types = await handleCreateTypeofGoal(nameType, theme, +idGoal);
+        res.status(201).json({
+            data: types,
+            success: true,
+            statusCode: 201
+        })
+
+    } catch (error: any) {
+        // res.status(500).json({
+        //     message: "Cannot create a new Type of Goal", error
+        // });
+        if (error instanceof Prisma.PrismaClientKnownRequestError) {
+            if (error.code === "P2002") {
+                return res.status(400).json({
+                    message: "Tên Type đã tồn tại, vui lòng nhập tên khác",
+                    field: error.meta?.target,
+                    success: false,
+                    statusCode: 400
+                });
+            }
+        }
+        return res.status(500).json({
+            message: "Cannot create a new Type of Goal",
+            error: error.message,
+            success: false,
+            statusCode: 500
+        });
+    }
+}
+
+const updateTypeofGoalAPI = async (req: Request, res: Response) => {
     try {
         const { idTypeGoal } = req.params;
         const { nameType, theme } = req.body;
@@ -280,10 +314,27 @@ const updateTypeofGoal = async (req: Request, res: Response) => {
     }
 }
 
-const deleteTypeofGoal = async (req: Request, res: Response) => {
+const deleteAllTypeofGoalAPI = async (req: Request, res: Response) => {
     try {
         const { idTypeGoal } = req.params;
-        const types = await handleDeleteTypeofGoal(+idTypeGoal);
+        const types = await handleDeleteAllTypeofGoal(+idTypeGoal);
+        res.status(200).json({
+            data: types,
+            success: true,
+            statusCode: 200
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            message: "Cannot delete this Type of Goal", error
+        });
+    }
+}
+
+const deleteTypeofGoalOnGoalTypeAPI = async (req: Request, res: Response) => {
+    try {
+        const { idGoal, idTypeGoal } = req.body;
+        const types = await handleDeleteTypeofGoalOnGoalType(+idTypeGoal, +idGoal);
         res.status(200).json({
             data: types,
             success: true,
@@ -299,6 +350,7 @@ const deleteTypeofGoal = async (req: Request, res: Response) => {
 
 export {
     updateGoalAPI, getAllGoalAPI, getGoalByIdAPI, deleteGoalAPI, createGoalAPI,
-    getTypeofGoalById, getAllGoalByUserIdAPI, uploadFileBackgroundAPI, getAllTypeofGoal,
-    createNewTypeofGoal, updateTypeofGoal, deleteTypeofGoal
+    getTypeofGoalByIdAPI, getAllGoalByUserIdAPI, uploadFileBackgroundAPI, getAllTypeofGoalAPI,
+    createNewTypeofGoalAPI, updateTypeofGoalAPI, deleteTypeofGoalOnGoalTypeAPI, deleteAllTypeofGoalAPI,
+    addTypeofGoalToGoalTypeAPI
 }

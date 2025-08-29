@@ -1,4 +1,4 @@
-import deadlineValidation from "config/deadlineValidation";
+import { createDeadlineValidation, deadlineValidation, updateDeadlineValidation } from "config/deadlineValidation";
 import { Request, Response } from "express";
 import { handleGetTypeofGoal } from "services/client/api/goalServiceApi";
 import { handleCreateTask, handleDeleteTask, handleGetTasksByGoalId, handleUpdateStatusTask, handleUpdateTask, handleUpdateTaskColumn, handleUpdateTaskOrders } from "services/client/api/taskServiceApi";
@@ -57,6 +57,11 @@ const createTaskAPI = async (req: Request, res: Response) => {
     try {
         const { idGoal } = req.params;
         const { title, isDone, startDate, dueDate, idColumn } = req.body;
+        const checkDeadline = createDeadlineValidation(dueDate);
+
+        if (!checkDeadline.valid) {
+            return res.status(400).json({ message: checkDeadline.error });
+        }
         const newTask = await handleCreateTask(title, dueDate, +idGoal, idColumn, isDone, startDate);
         res.status(200).json({
             data: newTask,
@@ -109,7 +114,7 @@ const updateTaskAPI = async (req: Request, res: Response) => {
         const { idTask } = req.params
         const { title, startDate, dueDate } = req.body;
 
-        const checkDeadline = deadlineValidation(startDate, dueDate);
+        const checkDeadline = updateDeadlineValidation(startDate, dueDate);
         if (!checkDeadline.valid) {
             return res.status(400).json({ message: checkDeadline.error });
         }

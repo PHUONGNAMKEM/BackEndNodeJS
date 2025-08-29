@@ -28,7 +28,9 @@ const handleGetAllGoalByUserIdAPI = async (idUser: number) => {
             idUser
         },
         include: {
-            typeofGoals: true
+            goalTypes: {
+                include: { typeofGoal: true }
+            }
         }
     });
 }
@@ -85,12 +87,34 @@ const handleGetAllTypeofGoal = async () => {
 //     return typesOfGoal;
 // }
 
+// Relation filed: goalTypes trong 2 bảng Goal và TypeofGoal
+/**
+ * Relation filter:
+ * some: tồn tại ít nhất 1 bản ghi con thỏa
+ * none: không có bản ghi con nào thỏa
+ * every: tất cả bản ghi con đều thỏa
+ */
+
 const handleGetTypeofGoal = async (idGoal: number) => {
     const types = await prisma.typeofGoal.findMany({
         where: {
-            idGoal: +idGoal
+            goalTypes: {
+                some: { idGoal } // dùng được trên relation filter (some là tồn tại ít nhất 1 bản ghi con thỏa)
+            }
         }
     });
+    return types;
+}
+
+const handleAddTypeofGoalToGoalType = async (idTypeGoal: number, idGoal: number) => {
+
+    const types = await prisma.goalType.create({
+        data: {
+            idTypeGoal,
+            idGoal
+        }
+    });
+
     return types;
 }
 
@@ -99,9 +123,12 @@ const handleCreateTypeofGoal = async (nameType: string, theme: string, idGoal: n
         data: {
             nameType,
             theme,
-            idGoal,
+            goalTypes: {
+                create: { idGoal }
+            },
         }
     });
+
     return types;
 }
 
@@ -118,14 +145,41 @@ const handleUpdateTypeofGoal = async (idTypeGoal: number, nameType: string, them
     return types;
 }
 
-const handleDeleteTypeofGoal = async (idTypeGoal: number) => {
+const handleDeleteAllTypeofGoal = async (idTypeGoal: number) => {
+
+    // Way 1: Handmade
+    // const types = await prisma.$transaction([
+    //     prisma.goalType.deleteMany({ where: { idTypeGoal } }),
+    //     prisma.typeofGoal.delete({ where: { idTypeGoal } }),
+    // ]);
+
+    // Way 2: Declare onDelete: Cascade on GoalType table - tự động xóa các bảng con liên quan
     const types = await prisma.typeofGoal.delete({
-        where: {
-            idTypeGoal: +idTypeGoal
-        }
+        where: { idTypeGoal }
     });
+
     return types;
 }
+
+const handleDeleteTypeofGoalOnGoalType = async (idTypeGoal: number, idGoal: number) => {
+    const types = await prisma.goalType.delete({
+        where: {
+            idGoal_idTypeGoal: {
+                idGoal: idGoal,
+                idTypeGoal: idTypeGoal,
+            }
+        }
+    })
+
+    // const types = await prisma.typeofGoal.delete({
+    //     where: {
+    //         idTypeGoal: +idTypeGoal
+    //     }
+    // });
+    return types;
+}
+
+
 
 // Update Status and Progress corresponding
 /**
@@ -159,5 +213,6 @@ const updateStatusProgressGoal = async (idGoal: number) => {
 export {
     handleGetAllGoalAPI, handleGetGoalById, handleUpdateGoal, handleDeleteGoal, handleCreateGoal,
     handleGetTypeofGoal, updateStatusProgressGoal, handleGetAllGoalByUserIdAPI, handleGetAllTypeofGoal,
-    handleCreateTypeofGoal, handleUpdateTypeofGoal, handleDeleteTypeofGoal
+    handleCreateTypeofGoal, handleUpdateTypeofGoal, handleDeleteTypeofGoalOnGoalType, handleDeleteAllTypeofGoal,
+    handleAddTypeofGoalToGoalType
 }
